@@ -44,21 +44,21 @@ export const login = async (req, res) => {
         if (error) return res.status(401).json({ success: false, message: INVALID_DATA, error: error.details[0].message })
 
         /// get user
-        let getUser = await getUser({
+        let user = await getUser({
             where: {
                 email: value.email
             }
         });
 
         // check user is in db
-        if (!getUser) return res.status(404).json({ success: false, message: USER_NOT_FOUND})
+        if (!user) return res.status(404).json({ success: false, message: USER_NOT_FOUND})
 
         ///pass compare from db  
-        let isPassMatched = compareHash(value.password, getUser.password);
+        let isPassMatched = compareHash(value.password, user.password);
         if (!isPassMatched) return res.status(400).json({ success: false, message: INVALID_CREDENTIALS})
 
         /// create jwt token
-        let token = generateToken({ id: getUser.id, email: getUser.email });
+        let token = generateToken({ id: user.id, email: user.email });
 
         res.status(200).json({ success: true, message: LOGIN_SUCCESS, token })
     } catch (error) {
