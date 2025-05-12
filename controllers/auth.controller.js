@@ -1,7 +1,7 @@
 import { userFindAll, userCreate, getUser } from "../services/auth.service.js";
 import { loginSchema, signUpSchema } from "../helpers/auth.validator.js";
 import { encrypt, compareHash, generateToken } from "../utils/utils.js";
-import { INTERNAL_SERVER_ERROR, INVALID_CREDENTIALS, INVALID_DATA, REGISTRATION_SUCCESS, USER_NOT_FOUND } from "../utils/constants.js";
+import { INTERNAL_SERVER_ERROR, INVALID_CREDENTIALS, INVALID_DATA, LOGIN_SUCCESS, REGISTRATION_SUCCESS, USER_NOT_FOUND } from "../utils/constants.js";
 
 export const getUsers = async (req, res) => {
     try {
@@ -66,4 +66,10 @@ export const login = async (req, res) => {
         res.status(500).json({ success: false, message: INTERNAL_SERVER_ERROR, error: error.stack })
     }
 
+}
+
+export const profile = (req, res) => {
+    console.log("profile()");
+    res.status(200).json({ success: true, message: "profile detail fetched" , profile: req.user});
+    
 }
