@@ -4,9 +4,11 @@ import sequelize from './config/db.config.js';
 import User from './models/user.model.js';
 import authRouter from './routes/auth.routes.js';
 
+
 const app = express();
 app.use(express.json());
 
+app.set('view engine', 'ejs')
 
 try {
     await sequelize.authenticate();

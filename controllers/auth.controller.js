@@ -1,7 +1,8 @@
 import { userFindAll, userCreate, getUser } from "../services/auth.service.js";
 import { loginSchema, signUpSchema } from "../helpers/auth.validator.js";
 import { encrypt, compareHash, generateToken } from "../utils/utils.js";
-import { INTERNAL_SERVER_ERROR, INVALID_CREDENTIALS, INVALID_DATA, LOGIN_SUCCESS, REGISTRATION_SUCCESS, USER_NOT_FOUND } from "../utils/constants.js";
+import { INTERNAL_SERVER_ERROR, INVALID_CREDENTIALS, INVALID_DATA, LOGIN_SUCCESS, REGISTRATION_SUCCESS, USER_CREATED_SUBJECT, USER_NOT_FOUND } from "../utils/constants.js";
+import { sendEmailToUser } from "../services/email.service.js";
 
 export const getUsers = async (req, res) => {
     try {
@@ -28,7 +29,12 @@ export const signUp = async (req, res) => {
 
         /// create jwt token
         let token = generateToken({ id: createUser.id, email: createUser.email });
-
+        sendEmailToUser({
+            to: createUser.email,
+            subject: USER_CREATED_SUBJECT,
+            emailValues: {name: createUser.name},
+            template: 'welcome.ejs'
+        });
         res.status(201).json({ success: true, message: REGISTRATION_SUCCESS, token })
     } catch (error) {
         console.log(error);
@@ -51,11 +57,11 @@ export const login = async (req, res) => {
         });
 
         // check user is in db
-        if (!user) return res.status(404).json({ success: false, message: USER_NOT_FOUND})
+        if (!user) return res.status(404).json({ success: false, message: USER_NOT_FOUND })
 
         ///pass compare from db  
         let isPassMatched = compareHash(value.password, user.password);
-        if (!isPassMatched) return res.status(400).json({ success: false, message: INVALID_CREDENTIALS})
+        if (!isPassMatched) return res.status(400).json({ success: false, message: INVALID_CREDENTIALS })
 
         /// create jwt token
         let token = generateToken({ id: user.id, email: user.email });
@@ -70,6 +76,6 @@ export const login = async (req, res) => {
 
 export const profile = (req, res) => {
     console.log("profile()");
-    res.status(200).json({ success: true, message: "profile detail fetched" , profile: req.user});
-    
+    res.status(200).json({ success: true, message: "profile detail fetched", profile: req.user });
+
 }
