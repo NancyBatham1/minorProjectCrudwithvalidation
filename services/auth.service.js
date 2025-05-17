@@ -1,14 +1,19 @@
 import User from "../models/user.model.js"
 
-export let userFindAll = (findOptions = {}) => {
+export const userFindAll = (findOptions = {}) => {
     return User.findAll(findOptions);
 }
 
 
-export let userCreate = (createValues) => {
+export const userCreate = (createValues) => {
     return User.create(createValues);
 }
 
-export let getUser = (findOptions) => {
+export const getUser = (findOptions) => {
     return User.findOne(findOptions);
+}
+
+export const updateOtp = (updateValues, findOptions) => {
+
+    return User.update(updateValues,findOptions);
 }

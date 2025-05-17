@@ -21,6 +21,10 @@ User.init(
             type: DataTypes.ENUM,
             values: ['user', 'admin', 'manager'],
             defaultValue: 'user'
+        },
+        emailotp: {
+            type: DataTypes.STRING,
+            allowNull: true
         }
     },
     {

@@ -6,3 +6,7 @@ export const INVALID_CREDENTIALS = 'invalid credentials';
 export const LOGIN_SUCCESS = 'Login successful!';
 
 export const USER_CREATED_SUBJECT = 'User created successfully';
+export const FORGOT_PASSWORD_SUBJECT = 'Forgot password OTP';
+export const EMAIL_SENT = 'Email sent successfully!';
+export const INVALID_OTP = 'Invalid OTP!';
+export const PASSWORD_RESET_SUCCESS = 'Password reset successful!';
