@@ -10,3 +10,4 @@ export const FORGOT_PASSWORD_SUBJECT = 'Forgot password OTP';
 export const EMAIL_SENT = 'Email sent successfully!';
 export const INVALID_OTP = 'Invalid OTP!';
 export const PASSWORD_RESET_SUCCESS = 'Password reset successful!';
+export const VERIFY_EMAIL = 'Email Verification';

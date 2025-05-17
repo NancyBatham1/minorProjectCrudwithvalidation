@@ -1,18 +1,8 @@
 import { userFindAll, userCreate, getUser, updateOtp } from "../services/auth.service.js";
 import { forgotPasswordSchema, loginSchema, resetPasswordSchema, signUpSchema } from "../helpers/auth.validator.js";
 import { encrypt, compareHash, generateToken, generateOTP } from "../utils/utils.js";
-import { EMAIL_SENT, FORGOT_PASSWORD_SUBJECT, INTERNAL_SERVER_ERROR, INVALID_CREDENTIALS, INVALID_DATA, INVALID_OTP, LOGIN_SUCCESS, PASSWORD_RESET_SUCCESS, REGISTRATION_SUCCESS, USER_CREATED_SUBJECT, USER_NOT_FOUND } from "../utils/constants.js";
+import { EMAIL_SENT, FORGOT_PASSWORD_SUBJECT, INTERNAL_SERVER_ERROR, INVALID_CREDENTIALS, INVALID_DATA, INVALID_OTP, LOGIN_SUCCESS, PASSWORD_RESET_SUCCESS, REGISTRATION_SUCCESS, USER_CREATED_SUBJECT, USER_NOT_FOUND, VERIFY_EMAIL } from "../utils/constants.js";
 import { sendEmailToUser } from "../services/email.service.js";
-
-export const getUsers = async (req, res) => {
-    try {
-        const users = await userFindAll();
-        res.json(users)
-    } catch (error) {
-        res.json({ error: error })
-    }
-
-}
 
 
 export const signUp = async (req, res) => {
@@ -35,6 +25,20 @@ export const signUp = async (req, res) => {
             emailValues: { name: createUser.name },
             template: 'welcome.ejs'
         });
+
+
+        // verify email
+        let otp = generateOTP();
+        createUser.emailOtp = otp;
+        await createUser.save();
+
+        sendEmailToUser({
+            to: createUser.email,
+            subject: VERIFY_EMAIL,
+            emailValues: { name: createUser.name, otp: createUser.emailOtp },
+            template: 'verifyEmail.ejs'
+        });
+
         res.status(201).json({ success: true, message: REGISTRATION_SUCCESS, token })
     } catch (error) {
         console.log(error);
@@ -99,7 +103,7 @@ export const forgotPassword = async (req, res) => {
         if (!user) return res.status(404).json({ success: false, message: USER_NOT_FOUND })
 
         let otp = generateOTP();
-        await updateOtp({ emailotp: otp }, {
+        await updateOtp({ emailOtp: otp }, {
             where: {
                 email: value.email
             }
@@ -139,12 +143,12 @@ export const resetPassword = async (req, res) => {
         if (!user) return res.status(404).json({ success: false, message: USER_NOT_FOUND });
 
         // check otp from db
-        if (user.emailotp != value.otp) return res.status(400).json({ success: false, message: INVALID_OTP })
+        if (user.emailOtp != value.otp) return res.status(400).json({ success: false, message: INVALID_OTP })
 
-        user.emailotp = null;
+        user.emailOtp = null;
         user.password = encrypt(value.password);
         await user.save();
-      
+
         res.status(200).json({ success: true, message: PASSWORD_RESET_SUCCESS });
 
     } catch (error) {

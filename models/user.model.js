@@ -22,9 +22,13 @@ User.init(
             values: ['user', 'admin', 'manager'],
             defaultValue: 'user'
         },
-        emailotp: {
+        emailOtp: {
             type: DataTypes.STRING,
             allowNull: true
+        },
+        isEmailVerified: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false
         }
     },
     {
