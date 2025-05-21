@@ -1,7 +1,7 @@
 import { userFindAll, userCreate, getUser, updateOtp } from "../services/auth.service.js";
-import { forgotPasswordSchema, loginSchema, resetPasswordSchema, signUpSchema } from "../helpers/auth.validator.js";
+import { emailVerificationSignupSchema, forgotPasswordSchema, loginSchema, resetPasswordSchema, signUpSchema } from "../helpers/auth.validator.js";
 import { encrypt, compareHash, generateToken, generateOTP } from "../utils/utils.js";
-import { EMAIL_SENT, FORGOT_PASSWORD_SUBJECT, INTERNAL_SERVER_ERROR, INVALID_CREDENTIALS, INVALID_DATA, INVALID_OTP, LOGIN_SUCCESS, PASSWORD_RESET_SUCCESS, REGISTRATION_SUCCESS, USER_CREATED_SUBJECT, USER_NOT_FOUND, VERIFY_EMAIL } from "../utils/constants.js";
+import { EMAIL_ALREADY_VERIFIED, EMAIL_SENT, EMAIL_VERIFIED, FORGOT_PASSWORD_SUBJECT, INTERNAL_SERVER_ERROR, INVALID_CREDENTIALS, INVALID_DATA, INVALID_OTP, LOGIN_SUCCESS, PASSWORD_RESET_SUCCESS, REGISTRATION_SUCCESS, USER_CREATED_SUBJECT, USER_NOT_FOUND, VERIFY_EMAIL } from "../utils/constants.js";
 import { sendEmailToUser } from "../services/email.service.js";
 
 
@@ -150,6 +150,45 @@ export const resetPassword = async (req, res) => {
         await user.save();
 
         res.status(200).json({ success: true, message: PASSWORD_RESET_SUCCESS });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: INTERNAL_SERVER_ERROR, error: error.stack });
+    }
+
+}
+
+export const verifyEmailOTP = async (req, res) => {
+
+    try {
+
+        ///validation
+        const { value, error } = emailVerificationSignupSchema.validate(req.body);
+        if (error) return res.status(401).json({ success: false, message: INVALID_DATA, error: error.details[0].message });
+
+        /// get user
+        let user = await getUser({
+            where: {
+                id: req.user.id,
+                email: req.user.email,
+                role: req.user.role
+            }
+        });
+
+        // check if user exists
+        if (!user) return res.status(404).json({ success: false, message: USER_NOT_FOUND });
+
+        // check if user's email is already verified
+        if (user.isEmailVerified) return res.status(400).json({ success: false, message: EMAIL_ALREADY_VERIFIED });
+
+        // check otp from db
+        if (user.emailOtp != value.otp) return res.status(400).json({ success: false, message: INVALID_OTP })
+
+        user.emailOtp = null;
+        user.isEmailVerified = true;
+        await user.save();
+
+        res.status(200).json({ success: true, message: EMAIL_VERIFIED });
 
     } catch (error) {
         console.log(error);

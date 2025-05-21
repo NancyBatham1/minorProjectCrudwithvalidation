@@ -11,3 +11,5 @@ export const EMAIL_SENT = 'Email sent successfully!';
 export const INVALID_OTP = 'Invalid OTP!';
 export const PASSWORD_RESET_SUCCESS = 'Password reset successful!';
 export const VERIFY_EMAIL = 'Email Verification';
+export const EMAIL_ALREADY_VERIFIED = 'Email is already verified';
+export const EMAIL_VERIFIED = 'Email verified successfully!';

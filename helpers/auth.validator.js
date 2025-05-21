@@ -32,3 +32,7 @@ export const resetPasswordSchema = Joi.object({
     password: Joi.string().required().label("Password"),
     otp: Joi.string().required().label("OTP")
 });
+
+export const emailVerificationSignupSchema = Joi.object({
+     otp: Joi.string().required().label("OTP")
+});
