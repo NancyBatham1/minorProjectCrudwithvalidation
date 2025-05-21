@@ -1,7 +1,7 @@
 import { userFindAll, userCreate, getUser, updateOtp } from "../services/auth.service.js";
-import { emailVerificationSignupSchema, forgotPasswordSchema, loginSchema, resetPasswordSchema, signUpSchema } from "../helpers/auth.validator.js";
+import { changePasswordSchema, emailVerificationSignupSchema, forgotPasswordSchema, loginSchema, resetPasswordSchema, signUpSchema } from "../helpers/auth.validator.js";
 import { encrypt, compareHash, generateToken, generateOTP } from "../utils/utils.js";
-import { EMAIL_ALREADY_VERIFIED, EMAIL_SENT, EMAIL_VERIFIED, FORGOT_PASSWORD_SUBJECT, INTERNAL_SERVER_ERROR, INVALID_CREDENTIALS, INVALID_DATA, INVALID_OTP, LOGIN_SUCCESS, PASSWORD_RESET_SUCCESS, REGISTRATION_SUCCESS, USER_CREATED_SUBJECT, USER_NOT_FOUND, VERIFY_EMAIL } from "../utils/constants.js";
+import { EMAIL_ALREADY_VERIFIED, EMAIL_SENT, EMAIL_VERIFIED, FORGOT_PASSWORD_SUBJECT, INTERNAL_SERVER_ERROR, INVALID_CREDENTIALS, INVALID_DATA, INVALID_OTP, LOGIN_SUCCESS, OLD_PASSWORD_NOT_MATCHED, PASSWORD_CHANGE_SUCCESSFUL, PASSWORD_RESET_SUCCESS, REGISTRATION_SUCCESS, USER_CREATED_SUBJECT, USER_NOT_FOUND, VERIFY_EMAIL } from "../utils/constants.js";
 import { sendEmailToUser } from "../services/email.service.js";
 
 
@@ -81,6 +81,39 @@ export const login = async (req, res) => {
 export const profile = (req, res) => {
     console.log("profile()");
     res.status(200).json({ success: true, message: "profile detail fetched", profile: req.user });
+
+}
+
+export const changePassword = async (req, res) => {
+    try {
+        ///validation
+    const { value, error } = changePasswordSchema.validate(req.body);
+
+    if (error) return res.status(401).json({ success: false, message: INVALID_DATA, error: error.details[0].message });
+
+    /// get user
+    let user = await getUser({
+        where: {
+            email: req.user.email
+        }
+    });
+
+    // check user is in db
+    if (!user) return res.status(404).json({ success: false, message: USER_NOT_FOUND })
+
+    // try to check given password with DB password
+    let isPassMatched = compareHash(value.oldPassword, user.password);
+    if (!isPassMatched) return res.status(400).json({ success: false, message: OLD_PASSWORD_NOT_MATCHED})
+
+    user.password = encrypt(value.newPassword);
+    await user.save();
+
+    res.status(200).json({ success: true, message: PASSWORD_CHANGE_SUCCESSFUL });
+    
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: INTERNAL_SERVER_ERROR, error: error.stack })
+    }
 
 }
 

@@ -13,3 +13,6 @@ export const PASSWORD_RESET_SUCCESS = 'Password reset successful!';
 export const VERIFY_EMAIL = 'Email Verification';
 export const EMAIL_ALREADY_VERIFIED = 'Email is already verified';
 export const EMAIL_VERIFIED = 'Email verified successfully!';
+
+export const OLD_PASSWORD_NOT_MATCHED = 'Old password and given old password does not matched';
+export const PASSWORD_CHANGE_SUCCESSFUL = 'Password changed successfully!';
