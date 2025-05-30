@@ -1,8 +1,8 @@
 import "dotenv/config"
 import express from 'express';
 import sequelize from './config/db.config.js';
-import User from './models/user.model.js';
 import authRouter from './routes/auth.routes.js';
+import adminRouter from "./routes/admin.routes.js";
 
 
 const app = express();
@@ -19,6 +19,7 @@ try {
 }
 
 app.use('/api/v1/auth/', authRouter);
+app.use('/api/v1/admin/', adminRouter);
 
 app.listen(process.env.PORT, () => {
     console.log('server is running');
